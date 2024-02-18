@@ -30,10 +30,19 @@ public class Server {
                 in = new DataInputStream(sc.getInputStream());
                 out = new DataOutputStream(sc.getOutputStream());
 
-                String myMessage = in.readUTF();
-                System.out.println(myMessage);
 
-                out.writeUTF("Hi from server");
+                
+                int myOption = Integer.parseInt(in.readUTF());
+                
+                if (myOption == 1) {
+                    uploadImage();
+                } else if (myOption == 2) {
+                    downloadImage();
+                } else {
+                    System.out.println("Invalid option");
+                }
+
+                
 
                 sc.close(); // close the client NOT the server
 
@@ -51,6 +60,14 @@ public class Server {
         }
         
 
+    }
+
+    public static void uploadImage() {
+        System.out.println("Uploaded image");
+    }
+
+    public static void downloadImage() {
+        System.out.println("Downloaded image");
     }
 
 

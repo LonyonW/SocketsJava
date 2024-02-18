@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) {
@@ -13,6 +14,7 @@ public class Client {
 
         DataInputStream in;
         DataOutputStream out;
+        Scanner scanner = new Scanner(System.in);
 
         try {
             Socket sc = new Socket(HOST, PORT);
@@ -20,11 +22,10 @@ public class Client {
             in = new DataInputStream(sc.getInputStream());
             out = new DataOutputStream(sc.getOutputStream());
 
-            out.writeUTF("Hi from client");
+            System.out.println("Hi what do you want? 1. Upload or 2. Download?");
 
-            String myMessage = in.readUTF();
+            out.writeUTF(scanner.nextLine());
 
-            System.out.println(myMessage);
 
             sc.close();
 
