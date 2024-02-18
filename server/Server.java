@@ -8,21 +8,19 @@ import java.net.Socket;
 
 public class Server {
 
-    public static void main(String[] args){
+    public static ServerSocket server;
+    public static Socket sc;
+    public static DataInputStream in;
+    public static DataOutputStream out;
+    final static int PORT = 55551;
 
-        ServerSocket server = null;
-        Socket sc = null;
-
-        DataInputStream in;
-        DataOutputStream out;
-
-        final int PORT = 55551;
+    public static void main(String[] args) {
 
         try {
             server = new ServerSocket(PORT);
             System.out.println("Server iniciated");
 
-            while(true) {
+            while (true) {
                 sc = server.accept();
 
                 System.out.println("Client conected");
@@ -30,10 +28,8 @@ public class Server {
                 in = new DataInputStream(sc.getInputStream());
                 out = new DataOutputStream(sc.getOutputStream());
 
-
-                
                 int myOption = Integer.parseInt(in.readUTF());
-                
+
                 if (myOption == 1) {
                     uploadImage();
                 } else if (myOption == 2) {
@@ -42,27 +38,22 @@ public class Server {
                     System.out.println("Invalid option");
                 }
 
-                
-
                 sc.close(); // close the client NOT the server
 
                 System.out.println("Client disconected");
 
             }
 
-
-
-
-
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
 
     }
 
     public static void uploadImage() {
+        // Obtain image path
+
         System.out.println("Uploaded image");
     }
 
@@ -70,8 +61,4 @@ public class Server {
         System.out.println("Downloaded image");
     }
 
-
-
-
 }
-
