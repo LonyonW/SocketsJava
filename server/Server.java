@@ -1,114 +1,118 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Scanner;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public class Server {
 
-    public static ServerSocket server;
-    public static Socket sc;
-    public static DataInputStream in;
-    public static DataOutputStream out;
+    private static ServerSocket server;
     private static Scanner scanner;
     final static int PORT = 55551;
 
     public Server() throws IOException {
         server = new ServerSocket(PORT);
-
         scanner = new Scanner(System.in);
     }
 
-    public static void main(String[] args) throws IOException {
-        Server myServer = new Server();
-
+    public static void main(String[] args) {
         try {
-
-            System.out.println("Server iniciated");
+            Server myServer = new Server();
+            System.out.println("Server initiated");
 
             while (true) {
+                Socket clientSocket = server.accept();
+                Thread clientThread = new ClientHandler(clientSocket);
+                clientThread.start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                server.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-                sc = server.accept();
-                in = new DataInputStream(sc.getInputStream());
-                out = new DataOutputStream(sc.getOutputStream());
+    private static class ClientHandler extends Thread {
+        private Socket clientSocket;
 
-                System.out.println("Client conected");
+        public ClientHandler(Socket clientSocket) {
+            this.clientSocket = clientSocket;
+        }
+
+        @Override
+        public void run() {
+            try {
+                System.out.println("Client connected: " + clientSocket.getInetAddress());
+
+                DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+                DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 
                 int myOption = Integer.parseInt(in.readUTF());
 
                 if (myOption == 1) {
-                    uploadImage(sc);
+                    uploadImage(clientSocket);
                 } else if (myOption == 2) {
-                    downloadImage(sc);
+                    downloadImage(clientSocket);
                 } else {
                     System.out.println("Invalid option");
                 }
 
-                sc.close(); // close the client NOT the server
-
-                System.out.println("Client disconected");
-
+                clientSocket.close();
+                System.out.println("Client disconnected: " + clientSocket.getInetAddress());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } finally {
-            server.close();
         }
 
-    }
-
-    public static void uploadImage(Socket sc) throws IOException {
-        // Obtain image path
-
-        InputStream inImage = sc.getInputStream();
-        FileOutputStream outFile = new FileOutputStream("imagenes/received_img" + System.currentTimeMillis() + ".jpg");
-        byte[] buffer = new byte[1024];
-        int readBytes;
-        while ((readBytes = inImage.read(buffer)) != -1) {
-            outFile.write(buffer, 0, readBytes);
+        public static void uploadImage(Socket sc) throws IOException {
+            // Obtain image path
+    
+            InputStream inImage = sc.getInputStream();
+            FileOutputStream outFile = new FileOutputStream("imagenes/received_img" + System.currentTimeMillis() + ".jpg");
+            byte[] buffer = new byte[1024];
+            int readBytes;
+            while ((readBytes = inImage.read(buffer)) != -1) {
+                outFile.write(buffer, 0, readBytes);
+            }
+            outFile.close();
+    
+            System.out.println("Uploaded image");
         }
-        outFile.close();
-
-        System.out.println("Uploaded image");
-    }
-
-    public static void downloadImage(Socket sc) throws IOException {
-        DataOutputStream dataOutputStream = new DataOutputStream(sc.getOutputStream());
-        File folder = new File("imagenes");
-        File[] files = folder.listFiles();
-        if (files != null) {
-            dataOutputStream.writeInt(files.length);
-            
-
-            for (File file : files) {
-                if (file.isFile()) {
-                    dataOutputStream.writeUTF(file.getName());
-                    dataOutputStream.writeLong(file.length());
-
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                        sc.getOutputStream().write(buffer, 0, bytesRead);
-                        //out.write(buffer, 0, bytesRead);
+    
+        public static void downloadImage(Socket sc) throws IOException {
+            DataOutputStream dataOutputStream = new DataOutputStream(sc.getOutputStream());
+            File folder = new File("imagenes");
+            File[] files = folder.listFiles();
+            if (files != null) {
+                dataOutputStream.writeInt(files.length);
+                
+    
+                for (File file : files) {
+                    if (file.isFile()) {
+                        dataOutputStream.writeUTF(file.getName());
+                        dataOutputStream.writeLong(file.length());
+    
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                            sc.getOutputStream().write(buffer, 0, bytesRead);
+                            //out.write(buffer, 0, bytesRead);
+                        }
+                        fileInputStream.close();
+    
                     }
-                    fileInputStream.close();
-
                 }
+    
             }
-
+    
+            System.out.println("Downloaded images");
         }
-
-        System.out.println("Downloaded images");
     }
-
 }
+
+
