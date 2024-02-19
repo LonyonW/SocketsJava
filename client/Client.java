@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 // /Users/lonyon/Screenshots/Screenshot 2024-02-18 at 4.30.59 PM.png
+// /Users/lonyon/Screenshots/Screenshot 2024-02-18 at 7.15.34 PM.png
 
 public class Client {
 
