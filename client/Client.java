@@ -11,6 +11,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
 // /Users/lonyon/Screenshots/Screenshot 2024-02-18 at 4.30.59 PM.png
 // /Users/lonyon/Screenshots/Screenshot 2024-02-18 at 7.15.34 PM.png
 
@@ -21,8 +26,9 @@ public class Client {
     private static DataOutputStream out;
     private static Scanner scanner;
     final int PORT = 55551;
-    final String HOST = "192.168.80.17";
 
+    //final String HOST = "192.168.80.17";
+    final String HOST = "localhost";
     public Client() throws IOException {
         sc = new Socket(HOST, PORT);
         in = new DataInputStream(sc.getInputStream());
@@ -31,6 +37,15 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException {
+        JDialog dialog = new JDialog();
+        dialog.setSize(100, 100);
+        dialog.setLocation(100, 100);
+
+        JTextField text = new JTextField("localhost");
+        JButton botonEnviar = new JButton("ingresar");
+        
+        dialog.add(text);
+        dialog.setVisible(true);
         Client client = new Client();
 
         try {
@@ -51,8 +66,6 @@ public class Client {
             } else {
                 System.out.println("Invalid option");
             }
-
-            
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -78,8 +91,8 @@ public class Client {
     }
 
     public static void downloadImage(Socket sc, DataInputStream dataInputStream) throws IOException {
-        
-        //DataInputStream dataInputStream = new DataInputStream(sc.getInputStream());
+
+        // DataInputStream dataInputStream = new DataInputStream(sc.getInputStream());
 
         File folder = new File("downloaded_Folder");
         if (!folder.exists()) {
